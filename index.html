@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>War Room · Sebastián López "El de Medallo" — Alcaldía de Medellín 2027</title>
+<meta name="description" content="Sistema de inteligencia política y comunicacional. Corte 01-jul-2026. Datos públicos, verificables y clasificados (hecho / interpretación / hipótesis).">
+<meta name="robots" content="noindex, nofollow">
+<!-- ===== Compartir (OG/Twitter). Reemplaza  por tu URL de GitHub Pages, ej: https://usuario.github.io/warroom/ ===== -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="War Room · Sebastián López — Alcaldía de Medellín 2027">
+<meta property="og:description" content="Inteligencia de campaña basada en datos. Contexto 2027, mapa competitivo, narrativa e ideas de contenido.">
+<meta property="og:image" content="assets/og.png">
+<meta property="og:url" content="">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="War Room · Sebastián López — Alcaldía 2027">
+<meta name="twitter:description" content="Inteligencia de campaña basada en datos. Corte 01-jul-2026.">
+<meta name="twitter:image" content="assets/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23070d18' stroke='%23ef4444' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23ef4444'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap">
+<style>
+  :root{
+    --bg:#070d18; --bg2:#0a1424; --panel:#0c1626; --panel2:#0f1d31; --line:#1d3050; --line2:#26406a;
+    --ink:#eaf1fd; --muted:#93a9cc; --faint:#5d739a;
+    --accent:#3b82f6; --accent2:#60a5fa; --gold:#f5b942; --gold2:#ffd27a;
+    --red:#ef4444; --amber:#f59e0b; --green:#22c55e; --purple:#a78bfa;
+    --radius:14px; --radius-s:10px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --serif:"Fraunces","Georgia",serif;
+    --shadow:0 10px 40px -12px rgba(0,0,0,.6);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:var(--sans);font-size:14.5px;line-height:1.5;color:var(--ink);
+    background:
+      radial-gradient(1200px 620px at 82% -8%, #12315a 0, transparent 58%),
+      radial-gradient(900px 500px at 0% 0%, #16234012 0, transparent 55%),
+      var(--bg);
+    -webkit-font-smoothing:antialiased}
+  a{color:var(--accent2);text-decoration:none} a:hover{text-decoration:underline}
+  h1,h2,h3{margin:0}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+  /* ---------- header ---------- */
+  header.top{position:sticky;top:0;z-index:40;
+    background:linear-gradient(180deg,#081120f2,#081120e6 60%,#08112000);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;gap:14px;padding:13px 0 12px;flex-wrap:wrap}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--red);flex:none;
+    box-shadow:0 0 0 4px #ef444422,0 0 14px #ef4444cc;animation:pulse 2.2s infinite}
+  @keyframes pulse{50%{opacity:.4}}
+  .brand{display:flex;flex-direction:column;gap:1px;margin-right:auto}
+  .brand .t{font-weight:700;letter-spacing:.2px;font-size:15px}
+  .brand .s{color:var(--faint);font-size:11.5px;font-family:var(--mono);letter-spacing:.4px}
+  .live{font-family:var(--mono);font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;
+    color:#ffd9d9;background:#ef44441a;border:1px solid #ef444455;border-radius:999px;padding:4px 10px}
+  .cta{font-size:12.5px;color:#dbe6ff;background:var(--panel2);border:1px solid var(--line2);
+    border-radius:999px;padding:6px 13px;cursor:pointer;transition:.15s}
+  .cta:hover{border-color:var(--accent);background:#13243f}
+  /* tabs */
+  nav.tabs{display:flex;gap:4px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+  nav.tabs::-webkit-scrollbar{display:none}
+  .tab{white-space:nowrap;font-size:13px;color:var(--muted);background:transparent;border:1px solid transparent;
+    border-radius:999px;padding:7px 14px;cursor:pointer;transition:.14s;font-weight:500}
+  .tab:hover{color:#fff;background:#0e1c33}
+  .tab.on{color:#fff;background:linear-gradient(180deg,#173461,#122a4e);border-color:var(--accent);
+    box-shadow:inset 0 0 0 1px #3b82f644}
+  .tab.lock{color:var(--gold2)}
+  .tab.lock.on{border-color:var(--gold);box-shadow:inset 0 0 0 1px #f5b94255;background:linear-gradient(180deg,#2a2410,#1c1a0e)}
+
+  /* ---------- sections ---------- */
+  main{padding:26px 0 70px;min-height:60vh}
+  .sec{display:none;animation:fade .35s ease}
+  .sec.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .sec-h{font-family:var(--serif);font-weight:600;font-size:24px;letter-spacing:.2px;margin-bottom:4px}
+  .sec-sub{color:var(--muted);font-size:13.5px;margin-bottom:20px;max-width:74ch}
+
+  .card{background:linear-gradient(180deg,var(--panel),#0a1322);border:1px solid var(--line);
+    border-radius:var(--radius);padding:16px 17px;box-shadow:var(--shadow)}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr 1fr}}
+  @media(max-width:620px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+  /* hero */
+  .hero{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;margin-bottom:20px}
+  .avatar{width:96px;height:96px;border-radius:20px;object-fit:cover;border:1px solid var(--line2);
+    box-shadow:var(--shadow);background:#0e1c33}
+  .hero h1{font-family:var(--serif);font-size:30px;font-weight:700;line-height:1.05}
+  .hero .alias{display:inline-block;margin-top:7px;font-size:13px;color:#0a1220;font-weight:700;
+    background:linear-gradient(180deg,var(--gold2),var(--gold));padding:3px 11px;border-radius:999px}
+  .hero .role{color:var(--muted);margin-top:9px;font-size:14px}
+  @media(max-width:620px){.hero{grid-template-columns:auto 1fr;gap:14px}.avatar{width:72px;height:72px}.hero h1{font-size:23px}}
+
+  /* KPI */
+  .kpi{position:relative;overflow:hidden}
+  .kpi .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--faint);font-weight:600}
+  .kpi .v{font-size:30px;font-weight:800;font-family:var(--mono);line-height:1;margin-top:8px;
+    background:linear-gradient(180deg,#fff,#a9c6f5);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .kpi .d{font-size:11.5px;color:var(--muted);margin-top:7px}
+  .kpi .spark{position:absolute;right:-6px;bottom:-6px;opacity:.14;font-size:60px}
+
+  /* badges */
+  .b{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    padding:2px 7px;border-radius:6px;border:1px solid;vertical-align:middle}
+  .b-h{color:#8ff0b6;background:#0f2a1c;border-color:#1f6b45}
+  .b-i{color:#a8cbff;background:#12233f;border-color:#2f5088}
+  .b-hip{color:#ffd79a;background:#2a2110;border-color:#7a5a1e}
+  .b-nv{color:#ff9d9d;background:#2a1414;border-color:#7a2e2e}
+  .b-op{color:#0a1220;background:linear-gradient(180deg,#7ff0a8,#22c55e);border-color:#22c55e}
+
+  /* score bars */
+  .score{margin:11px 0}
+  .score .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+  .score .nm{font-size:13.5px;font-weight:500}
+  .score .val{font-family:var(--mono);font-size:13px;color:var(--accent2);font-weight:700}
+  .track{height:9px;background:#0a1526;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+  .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#2563eb,#60a5fa)}
+  .fill.hi{background:linear-gradient(90deg,#15803d,#22c55e)} .fill.mid{background:linear-gradient(90deg,#b45309,#f59e0b)} .fill.lo{background:linear-gradient(90deg,#b91c1c,#ef4444)}
+
+  /* timeline */
+  .tl{position:relative;margin-left:8px;padding-left:22px;border-left:2px solid var(--line2)}
+  .tl .it{position:relative;padding:0 0 20px}
+  .tl .it::before{content:"";position:absolute;left:-29px;top:3px;width:12px;height:12px;border-radius:50%;
+    background:var(--accent);border:2px solid #0a1424;box-shadow:0 0 0 3px #3b82f633}
+  .tl .it.key::before{background:var(--gold);box-shadow:0 0 0 3px #f5b94240}
+  .tl .dt{font-family:var(--mono);font-size:11.5px;color:var(--gold2);letter-spacing:.4px}
+  .tl .tx{font-size:13.5px;margin-top:3px;color:#dfe9fb}
+
+  /* competitor scatter */
+  .quad{width:100%;height:auto;background:linear-gradient(180deg,#0a1322,#091120);border:1px solid var(--line);border-radius:var(--radius)}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;font-size:12px;color:var(--muted)}
+  .legend b{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+
+  /* threat card */
+  .th{display:flex;flex-direction:column;gap:6px}
+  .th .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .th .nm{font-weight:700;font-size:14.5px}
+  .th .bl{font-size:11px;color:var(--faint)}
+  .th .meter{display:flex;gap:3px}
+  .th .meter i{width:14px;height:6px;border-radius:2px;background:#22304d}
+  .th .meter i.on{background:var(--red)} .th .meter i.on.mid{background:var(--amber)} .th .meter i.on.lo{background:var(--green)}
+  .th .txt{font-size:12.5px;color:var(--muted)}
+  .th .ig{font-family:var(--mono);font-size:11.5px;color:var(--accent2)}
+
+  /* share of voice */
+  .sov .row{display:flex;align-items:center;gap:10px;margin:9px 0}
+  .sov .nm{width:150px;font-size:12.5px;flex:none;color:#dfe9fb}
+  .sov .bar{height:22px;border-radius:6px;background:linear-gradient(90deg,#1d4ed8,#60a5fa);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-family:var(--mono);font-size:11.5px;color:#fff;min-width:44px}
+  .sov .bar.self{background:linear-gradient(90deg,#b8860b,#f5b942);color:#1a1400}
+  .sov .bar.est{background:linear-gradient(90deg,#334155,#64748b)}
+  @media(max-width:620px){.sov .nm{width:96px}}
+
+  /* idea card */
+  .idea{display:flex;flex-direction:column;gap:8px}
+  .idea .hd{display:flex;gap:9px;align-items:flex-start}
+  .idea .num{font-family:var(--mono);font-size:11px;color:#0a1220;background:linear-gradient(180deg,#7ff0a8,#22c55e);border-radius:6px;padding:2px 6px;font-weight:800;flex:none}
+  .idea .ti{font-weight:700;font-size:14.5px;line-height:1.3}
+  .idea .meta{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:10.5px;color:#cfe0ff;background:#12233f;border:1px solid var(--line2);border-radius:999px;padding:2px 9px}
+  .chip.pri-alta{color:#0a1220;background:linear-gradient(180deg,#ffd27a,#f5b942);border-color:#f5b942;font-weight:700}
+  .idea .base{font-size:12.5px;color:var(--muted)}
+
+  ul.clean{margin:6px 0 0;padding-left:18px} ul.clean li{margin:5px 0;font-size:13px;color:#dbe6f7}
+  .muted{color:var(--muted)} .small{font-size:12px}
+  .kv{display:flex;gap:8px;margin:4px 0;font-size:13px} .kv .kk{color:var(--faint);min-width:120px;flex:none}
+  .callout{border-left:3px solid var(--gold);background:#1a160a55;padding:11px 14px;border-radius:8px;margin:14px 0;font-size:13.5px}
+  .note{border-left:3px solid var(--accent);background:#0e1c3355;padding:10px 13px;border-radius:8px;font-size:12.5px;color:var(--muted)}
+
+  /* internal gate */
+  .gate{max-width:460px;margin:30px auto;text-align:center}
+  .gate .lockico{font-size:38px}
+  .gate h2{font-family:var(--serif);font-size:22px;margin:10px 0 6px}
+  .gate p{color:var(--muted);font-size:13px;margin-bottom:16px}
+  .gate .field{display:flex;gap:8px}
+  .gate input{flex:1;background:#0a1526;border:1px solid var(--line2);color:var(--ink);border-radius:10px;padding:11px 13px;font-size:14px;font-family:var(--mono)}
+  .gate input:focus{outline:none;border-color:var(--gold)}
+  .gate button{background:linear-gradient(180deg,#f5b942,#d99a1e);color:#1a1400;font-weight:700;border:0;border-radius:10px;padding:11px 18px;cursor:pointer;font-size:14px}
+  .gate .err{color:#ff9d9d;font-size:12.5px;margin-top:10px;min-height:16px}
+
+  /* internal content styles (rendered after decrypt) */
+  .int-wrap h3.int-h{font-family:var(--serif);font-size:18px;margin:24px 0 10px;color:#fff}
+  .int-warn{background:#2a1414;border:1px solid #7a2e2e;color:#ffc9c9;border-radius:10px;padding:11px 14px;font-size:13px}
+  .int-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media(max-width:620px){.int-grid{grid-template-columns:1fr}}
+  .int-card{background:#0c1626}
+  .int-tag{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--gold2);font-weight:700;margin-bottom:6px}
+  .int-card p{font-size:13px;margin:0;color:#dbe6f7}
+  .int-note{font-size:12px;color:var(--muted);margin-top:8px}
+  table.int-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0}
+  table.int-table th{text-align:left;color:var(--faint);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;padding:7px 9px;border-bottom:1px solid var(--line2)}
+  table.int-table td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top;color:#dbe6f7}
+  table.int-table tr:hover td{background:#0e1c3344}
+
+  footer{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--faint);font-size:12px}
+  .method{background:#0a1322;border:1px dashed var(--line2);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="bar">
+      <span class="dot"></span>
+      <div class="brand">
+        <span class="t">WAR ROOM · Sebastián López "El de Medallo"</span>
+        <span class="s">Alcaldía de Medellín 2027 · corte <span id="corte">01-jul-2026</span></span>
+      </div>
+      <span class="live" id="countdown">—</span>
+      <button class="cta" id="printBtn">⤓ Imprimir / PDF</button>
+    </div>
+    <nav class="tabs" id="tabs"></nav>
+  </div>
+</header>
+
+<main class="wrap" id="main"></main>
+
+<footer>
+  <div class="wrap">
+    <div class="method" id="method"></div>
+    <p style="margin-top:14px">Documento de trabajo de campaña. Fuentes públicas, legalmente accesibles y verificables. Clasificación por dato:
+      <span class="b b-h">Hecho</span> <span class="b b-i">Interpretación</span> <span class="b b-hip">Hipótesis</span> <span class="b b-nv">No verificado</span>.
+      Las métricas de redes marcadas "indexado" no provienen de conteo en vivo. Generado con asistencia de IA.</p>
+  </div>
+</footer>
+
+<script>
+const ENC_PAYLOAD = "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";
+const ELECTION = new Date("2027-10-31T00:00:00-05:00");
+
+const DATA = {
+  perfil:{ nombre:"Sebastián López Valencia", alias:"El de Medallo", edad:"40 años", partido:"Centro Democrático",
+    role:"Exconcejal y expresidente del Concejo de Medellín · Precandidato a la Alcaldía 2027",
+    foto:"assets/sebastian.png" },
+  kpis:[
+    {k:"Instagram (verificado 01-jul)", v:"189K", d:"Líder digital del tablero · +seguidores vs. jun", sp:"📈"},
+    {k:"Votación Concejo 2023", v:"42.444", d:"2ª más alta del Concejo · 1ª del Centro Democrático", sp:"🗳️"},
+    {k:"Alcance digital agregado", v:"~560K", d:"6 plataformas (IG, FB, YT, TikTok, X, WhatsApp)", sp:"📡"},
+    {k:"Medellín en 2ª vuelta", v:"66%", d:"819.285 vs 421.839 por la derecha (21-jun)", sp:"🦅"},
+  ],
+  resumen:"López cierra su ciclo de concejal (renuncia 04-may-2026) y se proyecta como precandidato natural del bloque ficouribista a la Alcaldía 2027. Su activo es real y multiplataforma (IG 189K verificado, la mayor marca afectiva del tablero) y su saldo judicial con Quintero es favorable. El triunfo de Abelardo de la Espriella (21-jun) y el respaldo de Fico/Uribe alinean a Medellín con el nuevo gobierno: viento de cola para todo el bloque —López y su rival interno Tobón—. La ventana 2026-2027 es de reconstrucción narrativa: pasar de 'opositor de combate' a 'candidato propositivo de ciudad'.",
+  scores:[
+    {n:"Coherencia narrativa", v:74, c:"media"},
+    {n:"Visibilidad", v:72, c:"alta"},
+    {n:"Riesgo reputacional", v:62, c:"media"},
+    {n:"Transferibilidad a campaña", v:61, c:"media"},
+    {n:"Potencial electoral", v:58, c:"media"},
+    {n:"Territorialidad", v:54, c:"media"},
+    {n:"Capacidad ejecutiva", v:48, c:"media"},
+  ],
+  contexto:[
+    {t:"Gana la derecha, y Medellín la ratifica 2:1", b:"h", x:"Abelardo de la Espriella ganó la Presidencia el 21-jun-2026 (~49,66%). En Medellín arrasó: 819.285 vs 421.839 de Cepeda (~66%). Posesión 7-ago.", src:"El Tiempo (preconteo Registraduría)"},
+    {t:"El bloque paisa, alineado con el nuevo gobierno", b:"h", x:"Fico (vía Creemos), el gobernador Rendón y Uribe entre los primeros en felicitar a De la Espriella. El establecimiento antioqueño pasa de la oposición al poder.", src:"Semana · El Armadillo (22-jun)"},
+    {t:"Proyectos 'fase 3' para 2027", b:"i", x:"De la Espriella pidió a los mandatarios regionales proyectos priorizados para impulsarlos en 2027. Un alcaldable de continuidad puede prometer ejecución con respaldo nacional.", src:"El Tiempo (25-jun)"},
+    {t:"El Pacto Histórico es ya 2ª fuerza en Medellín", b:"h", x:"La izquierda perdió la presidencial pero quedó como segunda fuerza en la ciudad: la derecha NO puede fragmentarse (López vs. Tobón) sin ceder terreno.", src:"El Tiempo (25-jun)"},
+    {t:"Fico aún no unge sucesor", b:"nv", x:"No hay pronunciamiento público de Fico sobre a quién apoyará en 2027. Señal indirecta (tercero): De la Espriella + Fico definirían el aval de derecha en Antioquia. Ventana temporal para posicionarse.", src:"Vacío de fuente"},
+    {t:"López: hub web congelado, pero activo en IG", b:"h", x:"Su sitio no publica desde el 12-may (bio aún dice 'Presidente del Concejo 2025'), pero en Instagram se posiciona: 'mi compromiso real con nuestra ciudad y su futuro'. Tutela de Quintero en su contra: NEGADA.", src:"WebFetch sitio oficial + scraping IG"},
+  ],
+  timeline:[
+    {d:"2024-11-19", t:"Elegido presidente del Concejo de Medellín para 2025 (19 votos).", key:false},
+    {d:"2024-12-27", t:"La Procuraduría archiva sin hallazgos la denuncia de Quintero en su contra.", key:false},
+    {d:"2025", t:"'El Concejo en el Territorio' (16 comunas, 5 corregimientos) y 350 años de Medellín bajo su presidencia.", key:false},
+    {d:"2026-02-12", t:"Quintero cumple orden judicial y se retracta: saldo del litigio favorable a López.", key:true},
+    {d:"2026-05-04", t:"Renuncia al Concejo y rebrand 'El de Medallo'; se proyecta a la Alcaldía 2027 y anuncia Harvard.", key:true},
+    {d:"2026-05-31", t:"Paloma Valencia (campaña que lideró en Medellín) pierde en 1ª vuelta.", key:false},
+    {d:"2026-06-21", t:"2ª vuelta: gana De la Espriella. Medellín 2:1 por la derecha (819.285 vs 421.839).", key:true},
+    {d:"2026-06", t:"Instagram verificado en 189K; López se posiciona para la Alcaldía en redes.", key:true},
+  ],
+  narrativa:{
+    claim:"Sebastián López 'El de Medallo' es el defensor cercano y combativo de Medellín: el concejal más votado del uribismo que frenó a Quintero, ganó en los tribunales y se proyecta como heredero del ficouribismo.",
+    arquetipo:"El Defensor / Guerrero territorial — en transición (incompleta) de 'opositor de combate' a 'candidato propositivo de ciudad'.",
+    emocional:"Medellín no está sola ni indefensa: hay alguien que la lleva en la piel y la defiende sin miedo. Pertenencia, orgullo paisa, resiliencia.",
+    racional:"Orden, seguridad y libertad económica: control territorial, defensa de EPM y un modelo de ciudad de mérito y eficiencia.",
+    pivot:"Narrativa madre recomendada: «El de Medallo: la ciudad que defendimos, ahora la construimos — a grandes pasos.» De 'defender' (asedio) a 'construir' (continuidad-mejorada del modelo Fico)."
+  },
+  competidores:[
+    {n:"Sebastián López", self:true, bloque:"Ficouribismo / CD", x:4, y:-3, amenaza:0, ig:"189K ✓", fort:"Marca afectiva 'El de Medallo' + músculo digital dominante", deb:"Brecha ejecutiva y de agenda local"},
+    {n:"Andrés F. Tobón", bloque:"Creemos (aparato Fico)", x:4, y:4, amenaza:5, ig:"~125K", fort:"Credencial de seguridad real (exsecretario) + concejal más votado", deb:"Depende de Fico; sin marca afectiva"},
+    {n:"Manuel Villa Mejía", bloque:"Creemos / Fico", x:3, y:4, amenaza:2, ig:"—", fort:"Bandera de seguridad (homicidios más bajos desde 1976)", deb:"NO es candidato declarado; pasivos publicados"},
+    {n:"Juan C. Upegui", bloque:"Quinterismo / izquierda", x:-4, y:-3, amenaza:2, ig:"~19K", fort:"Referente anti-Fico; 2º en 2023", deb:"Inhabilidad de 8 años vigente"},
+    {n:"Daniel Carvalho", bloque:"Centro / verde-fajardista", x:-1, y:3, amenaza:2, ig:"107K ✓", fort:"Marca personal + credibilidad urbanística + digital", deb:"Sin partido ni estructura; centro fragmentado"},
+    {n:"Rodolfo Correa", bloque:"Centro 'antiextremos'", x:0, y:2, amenaza:2, ig:"—", fort:"Perfil técnico-jurídico de centro", deb:"Techo electoral ínfimo; historial de firmas"},
+    {n:"Carlos Cadena-Gaitán", bloque:"Verde / progresista", x:-2, y:3, amenaza:1, ig:"—", fort:"Credibilidad técnica en movilidad (PhD)", deb:"Sin votos demostrados; nicho"},
+  ],
+  sov:[
+    {n:"Sebastián López", v:189, lbl:"189K ✓", self:true},
+    {n:"Andrés F. Tobón", v:125, lbl:"~125K", est:true},
+    {n:"Daniel Carvalho", v:107, lbl:"107K ✓"},
+    {n:"Juan C. Upegui", v:19, lbl:"~19K", est:true},
+    {n:"Correa / Cadena", v:8, lbl:"n/d", est:true},
+  ],
+  espacios:[
+    "GESTIÓN LOCAL DE DERECHA CON OBRA: el cuadrante 'derecha + gestión' lo ocupa solo Tobón. Si López no aterriza propuesta de ciudad, se lo regala.",
+    "AGENDA MEDELLÍN-CÉNTRICA DIARIA: el espacio 'la ciudad, no la campaña nacional' está semi-vacío. Reocuparlo neutraliza el ataque más letal de todos los rivales.",
+    "SEGURIDAD 'DESDE EL TERRITORIO': Tobón/Villa monopolizan la seguridad técnica; queda libre la seguridad contada desde el barrio y la víctima común.",
+    "TERRITORIALIDAD POPULAR / COMUNAS: ningún rival domina maquinaria territorial verificada; 'El de Medallo' puede penetrar comunas populares.",
+    "RENOVACIÓN DE DERECHA SIN MAQUINARIA: 'derecha joven, popular y digital frente a la rosca' — Tobón es oficialismo puro.",
+    "CIUDAD-MODELO PROPOSITIVA: futuro, empleo joven, oportunidad económica con sello afectivo — poco ocupado en clave de derecha popular.",
+  ],
+  ideas:[
+    {n:"01", t:"«El mismo Medellín que frenó a Petro el 21-jun, defiende su ciudad en 2027»", pl:"IG/TikTok/FB reel", pri:"alta", base:"Medellín 2:1 por De la Espriella (HECHO). Reencuadra el mandato nacional en clave local. Durable."},
+    {n:"02", t:"Newsjacking 'proyectos fase 3': con presidente aliado, Medellín debe pedir y ejecutar", pl:"YouTube/carrusel", pri:"alta", base:"De la Espriella pidió proyectos priorizados a las regiones (HECHO). Ata alineación nacional a ejecución local (Metro 80, seguridad)."},
+    {n:"03", t:"«Medellín votó derecha, no centro-verde»", pl:"IG/X", pri:"media", base:"Colapso del fajardismo en Antioquia (731K→154K) + ciudad 66% derecha. Contraste con Carvalho/Cadena."},
+    {n:"04", t:"Serie «Aprendiendo para Medellín» desde Harvard", pl:"IG reels/diario", pri:"media", base:"Web congelada + estancia en Harvard = hueco de presencia en ventana favorable. Convierte ausencia en activo técnico."},
+    {n:"05", t:"Actualizar el hub digital (web + bio a narrativa 2027)", pl:"Web propia", pri:"media", base:"HECHO: web sin cambios desde 12-may, bio dice aún 'Presidente del Concejo 2025'. Quick win de coherencia."},
+    {n:"06", t:"«Quintero contra la nueva generación»", pl:"IG/X", pri:"media", base:"Tutela de Quintero contra López NEGADA (HECHO). Victimiza y posiciona a López como amenaza real al quinterismo."},
+    {n:"07", t:"Cerrar la brecha de video joven (TikTok)", pl:"TikTok", pri:"media", base:"López domina IG (189K) pero TikTok/YouTube sin métrica verificable; Carvalho fuerte en TikTok (~70K)."},
+    {n:"08", t:"Ocupar el vacío de Fico: heredero natural del bloque de seguridad", pl:"Todas", pri:"alta", base:"Fico no ha ungido sucesor. Ventana para posicionarse antes que Tobón consolide. No atacar a Fico: capitalizar el legado."},
+  ],
+  fuentes:[
+    ["El Tiempo — resultados y mapa 2ª vuelta 2026","https://www.eltiempo.com/politica/elecciones-colombia-2026/como-votaron-bogota-medellin-y-otras-ciudades-en-colombia-asi-les-fue-a-abelardo-de-la-espriella-e-ivan-cepeda-en-la-segunda-vuelta-presidencial-3566040"],
+    ["El Tiempo — qué le depara a Medellín con el nuevo gobierno","https://www.eltiempo.com/colombia/medellin/lo-que-le-depara-a-medellin-y-antioquia-con-la-llegada-de-un-nuevo-gobierno-de-las-rivalidades-con-petro-a-la-articulacion-con-de-la-espriella-3567417"],
+    ["Semana — reacciones al triunfo de De la Espriella","https://www.semana.com/nacion/articulo/asi-reaccionaron-las-figuras-politicas-al-triunfo-de-abelardo-de-la-espriella-nuevo-presidente-de-colombia-2026-al-2030/202602/"],
+    ["El Colombiano — renuncia de López al Concejo","https://www.elcolombiano.com/inicio/concejo-de-medellin-elecciones-sebastian-lopez-GH36134376"],
+    ["Infobae — Quintero se retracta ante López (12-feb-2026)","https://www.infobae.com/colombia/2026/02/12/daniel-quintero-se-retracto-por-orden-judicial-de-acusaciones-contra-el-concejal-sebastian-lopez-no-tengo-motivos-fundados-ni-pruebas/"],
+    ["La Silla Vacía — quién es Daniel Carvalho","https://www.lasillavacia.com/quien-es-quien/quien-es-daniel-carvalho-mejia/"],
+    ["El Colombiano — Manuel Villa, secretario de Seguridad","https://www.elcolombiano.com/medellin/manuel-villa-mejia-nuevo-secretario-de-seguridad-de-medellin-en-alcaldia-de-federico-gutierrez-NF23269657"],
+    ["Instagram @sebastianlopez.v (métrica verificada 01-jul)","https://www.instagram.com/sebastianlopez.v/"],
+  ],
+  metodologia:"Metodología: OSINT sobre fuentes públicas (prensa, sitios oficiales, redes públicas) + verificación con Bright Data Web Unlocker (métricas de Instagram capturadas el 01-jul-2026). Cada dato conserva su clasificación. No hay encuestas públicas verificables de intención de voto a la Alcaldía 2027: cualquier cifra que circule debe tratarse como NO VERIFICADO. Ventana de actualización: 10-jun a 01-jul-2026."
+};
+
+const TABS=[
+  ["resumen","Resumen"],["contexto","Contexto 2027"],["scores","Scores"],["timeline","Línea de tiempo"],
+  ["narrativa","Narrativa"],["competidores","Competidores"],["ideas","💡 Ideas de contenido"],
+  ["fuentes","Fuentes"],["interna","🔒 Sala interna"]
+];
+
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+const bcls={h:"b-h",i:"b-i",hip:"b-hip",nv:"b-nv"};
+const bname={h:"Hecho",i:"Interpret.",hip:"Hipótesis",nv:"No verif."};
+
+function render(){
+  // tabs
+  const tabsEl=document.getElementById("tabs");
+  TABS.forEach(([id,label],i)=>{
+    const b=el("button","tab"+(id==="interna"?" lock":"")+(i===0?" on":""),label);
+    b.onclick=()=>go(id,b);
+    tabsEl.appendChild(b);
+  });
+  const main=document.getElementById("main");
+  main.appendChild(secResumen());
+  main.appendChild(secContexto());
+  main.appendChild(secScores());
+  main.appendChild(secTimeline());
+  main.appendChild(secNarrativa());
+  main.appendChild(secCompetidores());
+  main.appendChild(secIdeas());
+  main.appendChild(secFuentes());
+  main.appendChild(secInterna());
+  document.getElementById("method").textContent=DATA.metodologia;
+  updateCountdown();
+}
+function go(id,btn){
+  document.querySelectorAll(".sec").forEach(s=>s.classList.toggle("on",s.id==="sec-"+id));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
+  btn.classList.add("on");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function wrapSec(id,title,sub){const s=el("section","sec"+(id==="resumen"?" on":""));s.id="sec-"+id;
+  if(title){s.appendChild(el("div","sec-h",title));} if(sub){s.appendChild(el("div","sec-sub",sub));} return s;}
+function badge(b){return `<span class="b ${bcls[b]}">${bname[b]}</span>`;}
+
+function secResumen(){
+  const s=wrapSec("resumen","");
+  const hero=el("div","hero");
+  hero.innerHTML=`<img class="avatar" src="${DATA.perfil.foto}" alt="Sebastián López" onerror="this.style.display='none'">
+    <div><h1>${DATA.perfil.nombre}</h1><span class="alias">🔥 ${DATA.perfil.alias}</span>
+    <div class="role">${DATA.perfil.role}</div></div>`;
+  s.appendChild(hero);
+  const k=el("div","grid g4");k.style.marginBottom="18px";
+  DATA.kpis.forEach(x=>k.appendChild(el("div","card kpi",`<div class="spark">${x.sp}</div><div class="k">${x.k}</div><div class="v">${x.v}</div><div class="d">${x.d}</div>`)));
+  s.appendChild(k);
+  s.appendChild(el("div","card",`<div style="font-family:var(--serif);font-size:16px;margin-bottom:8px">Lectura estratégica</div><p style="margin:0;color:#dbe6f7">${DATA.resumen}</p>`));
+  s.appendChild(el("div","callout",`<strong>Movimiento clave:</strong> migrar de 'defensor combativo' a 'constructor de ciudad' capitalizando el viento de cola de la derecha (21-jun) — sin ceder la agenda local a Tobón, el rival interno #1.`));
+  return s;
+}
+function secContexto(){
+  const s=wrapSec("contexto","Contexto 2027","Qué cambió en las últimas semanas y por qué le sirve (o le exige) a la campaña. Todo con clasificación de fuente.");
+  const g=el("div","grid g2");
+  DATA.contexto.forEach(c=>g.appendChild(el("div","card",`<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div style="font-weight:700;font-size:14.5px">${c.t}</div>${badge(c.b)}</div><p style="color:#dbe6f7;margin:9px 0 8px">${c.x}</p><div class="small muted">Fuente: ${c.src}</div>`)));
+  s.appendChild(g);
+  return s;
+}
+function secScores(){
+  const s=wrapSec("scores","Scores 0–100","Diagnóstico interpretativo (no hay encuesta pública). Visibilidad y coherencia altas; capacidad ejecutiva es el talón de Aquiles.");
+  const c=el("div","card");
+  DATA.scores.forEach(sc=>{
+    const cls=sc.v>=70?"hi":sc.v>=55?"":sc.v>=50?"mid":"lo";
+    const d=el("div","score",`<div class="row"><span class="nm">${sc.n} <span class="small muted">· confianza ${sc.c}</span></span><span class="val">${sc.v}</span></div><div class="track"><div class="fill ${cls}" style="width:${sc.v}%"></div></div>`);
+    c.appendChild(d);
+  });
+  s.appendChild(c);
+  return s;
+}
+function secTimeline(){
+  const s=wrapSec("timeline","Línea de tiempo crítica","Hitos verificados de la ventana. En dorado, los de mayor impacto.");
+  const t=el("div","tl");
+  DATA.timeline.forEach(i=>t.appendChild(el("div","it"+(i.key?" key":""),`<div class="dt">${i.d}</div><div class="tx">${i.t}</div>`)));
+  const c=el("div","card");c.appendChild(t);s.appendChild(c);
+  return s;
+}
+function secNarrativa(){
+  const s=wrapSec("narrativa","Narrativa","El ADN del relato y el pivote recomendado.");
+  const n=DATA.narrativa;
+  const g=el("div","grid g2");
+  g.appendChild(el("div","card",`<div class="int-tag" style="color:var(--gold2)">Claim principal</div><p style="margin:0;color:#dbe6f7">${n.claim}</p>`));
+  g.appendChild(el("div","card",`<div class="int-tag" style="color:var(--gold2)">Arquetipo</div><p style="margin:0;color:#dbe6f7">${n.arquetipo}</p>`));
+  g.appendChild(el("div","card",`<div class="int-tag" style="color:var(--gold2)">Promesa emocional</div><p style="margin:0;color:#dbe6f7">${n.emocional}</p>`));
+  g.appendChild(el("div","card",`<div class="int-tag" style="color:var(--gold2)">Promesa racional</div><p style="margin:0;color:#dbe6f7">${n.racional}</p>`));
+  s.appendChild(g);
+  s.appendChild(el("div","callout",`<strong>Pivote madre:</strong> ${n.pivot}`));
+  return s;
+}
+function secCompetidores(){
+  const s=wrapSec("competidores","Mapa competitivo","Eje real de la disputa: gestión vs. confrontación DENTRO de la derecha. La amenaza #1 es interna (Tobón + la bendición de Fico), no la izquierda.");
+  s.appendChild(scatter());
+  s.appendChild(el("div","sec-sub","&nbsp;"));
+  const g=el("div","grid g3");
+  DATA.competidores.filter(c=>!c.self).forEach(c=>{
+    const lvl=c.amenaza>=4?"":c.amenaza===3?"mid":"lo";
+    let meter="";for(let i=1;i<=5;i++)meter+=`<i class="${i<=c.amenaza?"on "+lvl:""}"></i>`;
+    g.appendChild(el("div","card th",`<div class="top"><span class="nm">${c.n}</span><span class="ig">${c.ig}</span></div><div class="bl">${c.bloque}</div><div class="meter" title="Amenaza ${c.amenaza}/5">${meter}</div><div class="txt"><strong style="color:#cfe0ff">+</strong> ${c.fort}<br><strong style="color:#ff9d9d">−</strong> ${c.deb}</div>`));
+  });
+  s.appendChild(g);
+  // share of voice
+  s.appendChild(el("div","sec-h","Share of voice · Instagram").outerHTML? (()=>{const h=el("div","");h.innerHTML=`<div style="font-family:var(--serif);font-size:18px;margin:22px 0 4px">Share of voice · Instagram</div><div class="sec-sub">✓ = verificado en vivo (01-jul). Otros: indexado. López domina y amplía el liderazgo digital.</div>`;return h;})():null);
+  const sov=el("div","card sov");
+  const max=Math.max(...DATA.sov.map(x=>x.v));
+  DATA.sov.forEach(x=>{
+    const w=Math.max(8,Math.round(x.v/max*100));
+    sov.appendChild(el("div","row",`<div class="nm">${x.n}</div><div class="bar ${x.self?"self":x.est?"est":""}" style="width:${w}%">${x.lbl}</div>`));
+  });
+  s.appendChild(sov);
+  // espacios libres
+  const eh=el("div","");eh.innerHTML=`<div style="font-family:var(--serif);font-size:18px;margin:22px 0 4px">🟢 Espacios libres (white space)</div><div class="sec-sub">Territorio narrativo sin dueño que López puede ocupar.</div>`;
+  s.appendChild(eh);
+  const eg=el("div","grid g2");
+  DATA.espacios.forEach(e=>eg.appendChild(el("div","card",`<span class="b b-op">Oportunidad</span><p style="margin:8px 0 0;color:#dbe6f7;font-size:13px">${e}</p>`)));
+  s.appendChild(eg);
+  return s;
+}
+function scatter(){
+  const W=620,H=440,mx=60,my=40;
+  const px=x=>mx+(x+5)/10*(W-2*mx), py=y=>H-my-(y+5)/10*(H-2*my);
+  const LP={
+    "Sebastián López":{dx:-17,dy:5,a:"end"},
+    "Andrés F. Tobón":{dx:-17,dy:-7,a:"end"},
+    "Manuel Villa Mejía":{dx:17,dy:16,a:"start"},
+    "Juan C. Upegui":{dx:17,dy:5,a:"start"},
+    "Daniel Carvalho":{dx:17,dy:17,a:"start"},
+    "Rodolfo Correa":{dx:17,dy:5,a:"start"},
+    "Carlos Cadena-Gaitán":{dx:-17,dy:-9,a:"end"},
+  };
+  let dots="",labels="";
+  DATA.competidores.forEach(c=>{
+    const cx=px(c.x),cy=py(c.y);
+    const r=c.self?11:8;
+    const fill=c.self?"#f5b942":c.amenaza>=4?"#ef4444":c.amenaza===2?"#f59e0b":"#60a5fa";
+    dots+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="#0a1424" stroke-width="2"${c.self?' filter="url(#glow)"':''}/>`;
+    const lp=LP[c.n]||{dx:14,dy:4,a:cx>W-140?"end":"start"};
+    labels+=`<text x="${cx+lp.dx}" y="${cy+lp.dy}" fill="${c.self?'#ffd27a':'#c7d6ef'}" font-size="11.5" font-weight="${c.self?700:500}" text-anchor="${lp.a}" font-family="Inter,sans-serif" paint-order="stroke" stroke="#091120" stroke-width="3">${c.n}</text>`;
+  });
+  const svg=`<svg class="quad" viewBox="0 0 ${W} ${H}" role="img" aria-label="Mapa de posicionamiento">
+    <defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <rect x="${mx}" y="${my}" width="${W-2*mx}" height="${H-2*my}" fill="none" stroke="#1d3050" rx="10"/>
+    <line x1="${px(0)}" y1="${my}" x2="${px(0)}" y2="${H-my}" stroke="#26406a" stroke-dasharray="4 5"/>
+    <line x1="${mx}" y1="${py(0)}" x2="${W-mx}" y2="${py(0)}" stroke="#26406a" stroke-dasharray="4 5"/>
+    <text x="${W-mx}" y="${py(0)-8}" fill="#5d739a" font-size="10.5" text-anchor="end" font-family="Inter">DERECHA →</text>
+    <text x="${mx}" y="${py(0)-8}" fill="#5d739a" font-size="10.5" font-family="Inter">← IZQUIERDA</text>
+    <text x="${px(0)+8}" y="${my+14}" fill="#5d739a" font-size="10.5" font-family="Inter">▲ GESTIÓN</text>
+    <text x="${px(0)+8}" y="${H-my-6}" fill="#5d739a" font-size="10.5" font-family="Inter">▼ CONFRONTACIÓN</text>
+    ${dots}${labels}
+  </svg>`;
+  const c=el("div","");c.innerHTML=svg;
+  const leg=el("div","legend",`<span><b style="background:#f5b942"></b>López (sujeto)</span><span><b style="background:#ef4444"></b>Amenaza alta</span><span><b style="background:#f59e0b"></b>Amenaza media</span><span><b style="background:#60a5fa"></b>Amenaza baja</span>`);
+  c.appendChild(leg);
+  return c;
+}
+function secIdeas(){
+  const s=wrapSec("ideas","💡 Ideas de contenido","El objetivo del war room: convertir cada dato en una pieza. 🟢 = oportunidad accionable. Prioridad alta primero.");
+  const g=el("div","grid g2");
+  DATA.ideas.sort((a,b)=>(a.pri==="alta"?0:1)-(b.pri==="alta"?0:1)).forEach(i=>{
+    g.appendChild(el("div","card idea",`<div class="hd"><span class="num">${i.n}</span><span class="ti">${i.t}</span></div><div class="meta"><span class="chip pri-${i.pri}">${i.pri==="alta"?"★ Prioridad alta":"Prioridad media"}</span><span class="chip">${i.pl}</span></div><div class="base">${i.base}</div>`));
+  });
+  s.appendChild(g);
+  return s;
+}
+function secFuentes(){
+  const s=wrapSec("fuentes","Fuentes y método","Trazabilidad: fuentes públicas usadas en este corte.");
+  const c=el("div","card");
+  const ul=el("ul","clean");
+  DATA.fuentes.forEach(([t,u])=>ul.appendChild(el("li",null,`<a href="${u}" target="_blank" rel="noopener">${t}</a>`)));
+  c.appendChild(ul);s.appendChild(c);
+  s.appendChild(el("div","note",DATA.metodologia));
+  return s;
+}
+function secInterna(){
+  const s=wrapSec("interna","");
+  const gate=el("div","gate");
+  gate.innerHTML=`<div class="lockico">🔒</div><h2>Sala interna — confidencial</h2>
+    <p>Estrategia, matriz de riesgos y de ataques, oposición-research. Ingresa la contraseña para desbloquear.</p>
+    <div class="field"><input id="pw" type="password" placeholder="Contraseña" autocomplete="off" onkeydown="if(event.key==='Enter')unlock()"><button onclick="unlock()">Entrar</button></div>
+    <div class="err" id="pwerr"></div>`;
+  const content=el("div","");content.id="int-content";content.style.display="none";
+  s.appendChild(gate);s.appendChild(content);
+  return s;
+}
+
+async function unlock(){
+  const pw=document.getElementById("pw").value;
+  const err=document.getElementById("pwerr");
+  err.textContent="Descifrando…";
+  try{
+    const packed=Uint8Array.from(atob(ENC_PAYLOAD),c=>c.charCodeAt(0));
+    const salt=packed.slice(0,16),iv=packed.slice(16,28),ct=packed.slice(28);
+    const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+    const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:250000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
+    const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv},key,ct);
+    const html=new TextDecoder().decode(pt);
+    document.querySelector("#sec-interna .gate").style.display="none";
+    const c=document.getElementById("int-content");c.innerHTML=html;c.style.display="block";
+    err.textContent="";
+  }catch(e){ err.textContent="❌ Contraseña incorrecta."; }
+}
+
+function updateCountdown(){
+  const now=new Date();const diff=ELECTION-now;
+  const days=Math.max(0,Math.ceil(diff/86400000));
+  document.getElementById("countdown").textContent="● EN VIVO · "+days+" días para oct 2027";
+}
+document.getElementById("printBtn").onclick=()=>{document.querySelectorAll(".sec").forEach(s=>s.classList.add("on"));window.print();};
+render();
+</script>
+</body>
+</html>
