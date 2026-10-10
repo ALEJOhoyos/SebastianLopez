@@ -11,13 +11,17 @@ Pasos (en orden; se detiene si falta una fuente o si V4/V5 no son pistas de titu
   2. Mide los cortes reales de V1 (GetItemListInTrack), los exporta a
      resolve\v1_cortes_medidos.json y los compara con resolve\bloques_sub.json.
      Cada clip y cada rotulo de V3 lleva su fecha de publicacion en formato de
-     casa (27-nov-2024); las fechas solo se reportan, no se cambian.
+     casa (27-nov-2024).
   3. Verifica los 11 Text+ de V4/V5: StyledText = nombre del clip = texto esperado,
      in/out = bloque (recortado al clip de V1 si hiciera falta), sin cruzar cortes.
      Corrige el texto si difiere.
   4. Renombra V4 -> SUB_ARRIBA y V5 -> SUB_ABAJO (si ya existen, solo re-aplica) y
      aplica el estilo a cada Text+. Si un clip no es un TextPlus real, lo convierte
      in situ (Fusion comp con TextPlus en la misma posicion; no se mueve nada).
+  4b. Fechas: los rotulos R01-R04 de V3 pasan a Text+ editables con la fecha en
+     formato de casa (27-nov-2024) y el estilo de SUB_ABAJO, colocados donde estaba
+     el texto del PNG. Se hace en el mismo clip (comp Fusion "FECHA_casa"): no se
+     mueve nada. R00_intro y R06_hoy siguen en PNG (ver FECHA_TEXTO_EXTRA).
   5. Comprueba que V1, V2, V3 y todo el audio quedaron identicos y borra la pista
      de subtitulos "Subtitle 1" si existe.
   6. Guarda el proyecto y escribe resolve\sub_report.txt y resolve\sub_report.json.
@@ -33,6 +37,7 @@ Ejecutar:
        python sub_pipeline.py --sin-render    # pasos 1-6
        python sub_pipeline.py --forzar-render # renderiza aunque haya bloqueantes
        python sub_pipeline.py --borrar-v2-v3  # al final borra las timelines v2 y v3
+       python sub_pipeline.py --revertir-fechas  # quita los Text+ de fecha: vuelven los PNG
   Idempotente: se puede ejecutar las veces que haga falta.
 
 AAC 320 kbps: la API no expone el bitrate de audio. Si existe un preset de render
@@ -114,6 +119,21 @@ FONT_REGISTRY = {
 # Size, Center X, Center Y
 LAYOUT = {SUB_ARRIBA: (0.0739, 0.5, 0.4659), SUB_ABAJO: (0.0627, 0.5, 0.4396)}
 OUTLINE = {"thickness": 0.15, "softness": 12.0, "opacity": 1.0, "offset": (0.0, -0.010)}
+
+# Fechas de V3 como Text+ editables (formato de casa, estilo de los subtitulos).
+# Cada rotulo PNG de V3 recibe en su sitio una comp Fusion "FECHA_casa" con un
+# TextPlus -> MediaOut: misma pista, mismo in/out, nada se mueve; el PNG queda
+# debajo sin usarse (--revertir-fechas borra la comp y vuelve el PNG).
+# R00_intro y R06_hoy no tienen fecha de publicacion: siguen en PNG salvo que se
+# anadan a FECHA_TEXTO_EXTRA con su texto, p. ej. {"R06": "hoy"}.
+FECHAS_TEXTPLUS = True
+ROTULOS_IDX = 3
+FECHA_ROTULOS = {"R01": "H01", "R02": "H02", "R03": "H03", "R04": "H04"}
+FECHA_TEXTO_EXTRA = {}
+FECHA_ESTILO = SUB_ABAJO          # fuente del Text+ de fecha (Montserrat Black Italic)
+FECHA_SIZE = LAYOUT[SUB_ABAJO][0]
+FECHA_CENTER_DEFAULT = (0.5, 0.78)  # solo si no se puede medir la zona opaca del PNG
+FECHA_COMP, FECHA_TOOL = "FECHA_casa", "FECHA"
 
 LINE_MAX_CHARS, LINE_MAX_WORDS, BLOCK_MAX_WORDS = 26, 5, 7
 DUR_MIN_S, DUR_MAX_S = 0.8, 3.5
@@ -606,7 +626,7 @@ def step2_v1(snap, rep):
                 rep.warn("%s: el nombre dice %s y la publicacion en YouTube es %s (no se cambia nada)"
                          % (c["name"], c["fecha"], fecha_casa(iso)))
 
-    # Rotulos de V3 (fechas rojas): solo se listan con el clip de V1 que tienen debajo.
+    # Rotulos de V3: se listan con el clip de V1 que tienen debajo (el paso 4b pone las fechas en Text+).
     v3 = []
     for r in snap.get("V3", {}).get("items", []):
         under = max(v1, key=lambda c: min(r["end"], c["end"]) - max(r["start"], c["start"])) if v1 else None
@@ -870,8 +890,8 @@ def suggest(imap, *words):
     return sorted(i for i in imap if any(w.lower() in i.lower() for w in words))[:12]
 
 
-def style_tool(tool, role, font, tag, rep):
-    size, cx, cy = LAYOUT[role]
+def style_tool(tool, font, size, center, tag, rep):
+    cx, cy = center
     o = OUTLINE
     # (etiqueta, IDs candidatos, valor, obligatorio)
     spec = [
@@ -999,7 +1019,8 @@ def step4_style(tl, subs, fonts, rep):
         call(comp, "Lock")
         call(comp, "StartUndo", "SUB estilo")
         try:
-            rbs = [style_tool(t, x["role"], fonts[x["role"]], tag, rep) for t in x["tools"]]
+            size, cx, cy = LAYOUT[x["role"]]
+            rbs = [style_tool(t, fonts[x["role"]], size, (cx, cy), tag, rep) for t in x["tools"]]
         finally:
             call(comp, "EndUndo", True)
             call(comp, "Unlock")
@@ -1010,6 +1031,144 @@ def step4_style(tl, subs, fonts, rep):
             fmt(rb.get("Size")), fmt(rb.get("Center")), norm(rb.get("StyledText"))))
         if rb.get("CharacterOffset_inputs") == []:
             x["co_note"] = "sin input CharacterOffset"
+
+
+# ----------------------------------------------------------------------------
+# Paso 4b - fechas de V3 como Text+
+# ----------------------------------------------------------------------------
+def first_tool(comp, reg):
+    return next(iter(as_list(call(comp, "GetToolList", False, reg))), None)
+
+
+def measure_png(comp):
+    """(cx, cy, alto) normalizados de la zona opaca del PNG (MediaIn) via AutoDomain.
+    None si Fusion no lo permite o si el PNG no tiene zona transparente."""
+    mi = first_tool(comp, "MediaIn")
+    ad = call(comp, "AddTool", "AutoDomain", -32768, -32768) if mi is not None else None
+    if ad is None:
+        return None
+    try:
+        ad.ConnectInput("Input", mi)
+        t = None
+        try:
+            t = comp.CurrentTime
+        except Exception:
+            t = None
+        if t is None:
+            t = (call(comp, "GetAttrs") or {}).get("COMPN_RenderStart", 0)
+        out, img = ad.Output, None
+        for get in (lambda: out.GetValue(t), lambda: out[t]):
+            try:
+                img = get()
+            except Exception:
+                img = None
+            if img is not None:
+                break
+        dw = img.DataWindow
+        x1, y1, x2, y2 = [float(v) for v in (as_list(dw) if isinstance(dw, dict) else dw)][:4]
+        w, h = float(img.Width), float(img.Height)
+        if w <= 0 or h <= 0 or ((x2 - x1) >= 0.98 * w and (y2 - y1) >= 0.98 * h):
+            return None
+        return ((x1 + x2) / 2.0 / w, (y1 + y2) / 2.0 / h, (y2 - y1) / h)
+    except Exception:
+        return None
+    finally:
+        call(ad, "Delete")
+
+
+def transforms(item):
+    defaults = {"ZoomX": 1.0, "ZoomY": 1.0, "Pan": 0.0, "Tilt": 0.0, "RotationAngle": 0.0,
+                "CropLeft": 0.0, "CropRight": 0.0, "CropTop": 0.0, "CropBottom": 0.0}
+    diff = {}
+    for k, d in defaults.items():
+        v = to_float(call(item, "GetProperty", k))
+        if v is not None and abs(v - d) > TOL:
+            diff[k] = v
+    return diff
+
+
+def step4b_fechas(tl, fonts, opts, rep):
+    rep.h("PASO 4b - Fechas de V3 como Text+ (formato de casa)")
+    rows = []
+    if not FECHAS_TEXTPLUS and not opts.revertir_fechas:
+        rep.out("  Desactivado (FECHAS_TEXTPLUS = False): los rotulos siguen en PNG")
+        return rows
+    textos = dict((r, fecha_casa(PUB_DATES[c])) for r, c in FECHA_ROTULOS.items())
+    textos.update(FECHA_TEXTO_EXTRA)
+    t0 = tl.GetStartFrame()
+    for it in items(tl, "video", ROTULOS_IDX):
+        name, p = it.GetName(), prefix(it.GetName())
+        st, en = it.GetStart() - t0, it.GetEnd() - t0
+        names = [str(n) for n in as_list(call(it, "GetFusionCompNameList"))]
+        tag = "Fecha %s" % p
+        if opts.revertir_fechas:
+            if FECHA_COMP in names:
+                if call(it, "DeleteFusionCompByName", FECHA_COMP):
+                    rep.out("  %s %d-%d: comp %s borrada, vuelve el PNG" % (name, st, en, FECHA_COMP))
+                else:
+                    rep.block("%s: no pude borrar la comp %s" % (name, FECHA_COMP))
+            continue
+        if p not in textos:
+            rep.out("  %-20s %4d-%4d: sin fecha de publicacion, se queda en PNG" % (name, st, en))
+            continue
+        row = {"rotulo": name, "in": st, "out": en, "texto": textos[p]}
+        rows.append(row)
+        others = [n for n in names if n != FECHA_COMP]
+        if others:
+            rep.warn("%s ya tiene comp Fusion propia %s: no la toco, se queda en PNG" % (name, others))
+            row["estado"] = "PNG (comp propia)"
+            continue
+        tr = transforms(it)
+        if tr:
+            rep.warn("%s tiene transformaciones en el Inspector %s: tambien afectan al Text+" % (name, tr))
+        if opts.solo_medir:
+            row["estado"] = "ya es Text+" if FECHA_COMP in names else "se convertiria"
+            rep.out("  %-20s %4d-%4d -> '%s' (%s)" % (name, st, en, row["texto"], row["estado"]))
+            continue
+
+        if FECHA_COMP in names:
+            comp = call(it, "GetFusionCompByName", FECHA_COMP) or call(it, "LoadFusionCompByName", FECHA_COMP)
+        else:
+            comp = call(it, "AddFusionComp")
+            new = [str(n) for n in as_list(call(it, "GetFusionCompNameList")) if str(n) not in names]
+            if comp is not None and new and new[0] != FECHA_COMP:
+                call(it, "RenameFusionCompByName", new[0], FECHA_COMP)
+        if comp is None:
+            rep.block("%s: no pude crear/abrir la comp %s" % (name, FECHA_COMP))
+            row["estado"] = "ERROR"
+            continue
+        call(comp, "Lock")
+        call(comp, "StartUndo", "FECHA casa")
+        try:
+            tp = call(comp, "FindTool", FECHA_TOOL)
+            if tp is None:
+                tp = call(comp, "AddTool", "TextPlus", -32768, -32768)
+                call(tp, "SetAttrs", {"TOOLS_Name": FECHA_TOOL})
+            mo = first_tool(comp, "MediaOut")
+            if tp is None or mo is None:
+                rep.block("%s: no pude anadir TextPlus/MediaOut" % name)
+                row["estado"] = "ERROR"
+                continue
+            tp.SetInput("StyledText", row["texto"])
+            box = measure_png(comp)
+            center = (box[0], box[1]) if box else FECHA_CENTER_DEFAULT
+            row["posicion"] = ("medida del PNG (alto %.3f)" % box[2]) if box else "por defecto"
+            if not box:
+                rep.warn("%s: no pude medir la zona opaca del PNG; Text+ en %s por defecto (ajustalo en Fusion)"
+                         % (name, fmt(center)))
+            rb = style_tool(tp, fonts[FECHA_ESTILO], FECHA_SIZE, center, tag, rep)
+            mo.ConnectInput("Input", tp)
+        finally:
+            call(comp, "EndUndo", True)
+            call(comp, "Unlock")
+        if norm(rb.get("StyledText")) != norm(row["texto"]):
+            rep.block("%s: StyledText leido %r != %r" % (tag, rb.get("StyledText"), row["texto"]))
+        row.update(estado="Text+", font=rb.get("Font"), style=rb.get("Style"), center=rb.get("Center"),
+                   size=rb.get("Size"))
+        rep.out("  %-20s %4d-%4d -> '%s'  Font=%r Style=%r Center=%s (%s)" % (
+            name, st, en, row["texto"], row["font"], row["style"], fmt(row["center"]), row["posicion"]))
+    rep.data["fechas_textplus"] = rows
+    return rows
 
 
 # ----------------------------------------------------------------------------
@@ -1092,7 +1251,7 @@ def step6_save(pm, rep):
         rep.block("SaveProject() devolvio False")
 
 
-def summary(rep, v1, subs, fonts):
+def summary(rep, v1, subs, fonts, fechas=()):
     rep.h("REPORTE")
     rep.out("Cortes de V1 medidos (frames de timeline @ %d fps, tcStart 00:00:00:00):" % FPS)
     for i, c in enumerate(v1, 1):
@@ -1102,12 +1261,12 @@ def summary(rep, v1, subs, fonts):
     rep.out("  Cortes: %s" % ", ".join(str(c["start"]) for c in v1[1:]))
     v3 = rep.data.get("v3") or []
     if v3:
-        rep.out("Rotulos V3 (sin cambios):")
+        rep.out("Rotulos V3 (in/out sin cambios):")
         for r in v3:
             rep.out("  %-20s %4d-%4d  sobre %-4s %s" % (r["name"], r["start"], r["end"],
                                                     prefix(r["clip"]), r["fecha"] or "-"))
     rep.out("")
-    fechas = dict((prefix(c["name"]), c.get("fecha")) for c in v1)
+    fecha_clip = dict((prefix(c["name"]), c.get("fecha")) for c in v1)
     entries = sorted(subs["entries"], key=lambda x: (x["s"], x["role"] != SUB_ARRIBA))
     rep.out("Text+ (%d):" % sum(1 for x in entries if "item" in x))
     rep.out("  blq pista       clip fecha          in    out   TC in        dur    texto"
@@ -1117,7 +1276,7 @@ def summary(rep, v1, subs, fonts):
         rb = x.get("readback", {})
         st, en = x.get("start"), x.get("end")
         row = {"bloque": x["block"], "pista": x["role"], "V": x["track"], "clip": x["clip"],
-               "fecha": fechas.get(x["clip"]), "in": st, "out": en,
+               "fecha": fecha_clip.get(x["clip"]), "in": st, "out": en,
                "texto": norm(x.get("styled") or x["text"]), "font": rb.get("Font"), "style": rb.get("Style"),
                "size": rb.get("Size"), "center": rb.get("Center"), "inputs": rb.get("inputs_fijados"),
                "otros": rb.get("otros")}
@@ -1129,6 +1288,13 @@ def summary(rep, v1, subs, fonts):
             x["block"], x["role"], x["clip"], row["fecha"] or "-", st, en, tc(st), (en - st) / float(FPS),
             "'%s'" % row["texto"], rb.get("Font", "(sin estilar)"), rb.get("Style", "")))
     rep.data["textplus"] = table
+    if fechas:
+        rep.out("")
+        rep.out("Fechas en V3 como Text+ (%s, formato de casa):" % FONT_LABEL[FECHA_ESTILO])
+        for f in fechas:
+            rep.out("  %-20s %4d-%4d  '%s'  %s  %s / %s  Center=%s  %s" % (
+                f["rotulo"], f["in"], f["out"], f["texto"], f.get("estado", "-"), f.get("font", "-"),
+                f.get("style", "-"), fmt(f["center"]) if f.get("center") else "-", f.get("posicion", "")))
     rep.out("")
     for role in ROLES:
         f = fonts.get(role)
@@ -1136,7 +1302,8 @@ def summary(rep, v1, subs, fonts):
             rep.out("Fuente %s: Font=%r Style=%r archivo=%s" % (role, f[0], f[1], f[2]))
     rep.out("")
     rep.out("Pendiente / dudas:")
-    rep.out("  - Fechas de los rotulos = publicacion en YouTube: %s. No se cambian." % ", ".join(
+    rep.out("  - Fechas de los rotulos = publicacion en YouTube: %s. Mismas fechas; R01-R04 ahora "
+            "se renderizan como Text+." % ", ".join(
         "%s %s" % (p, fecha_casa(d)) for p, d in sorted(PUB_DATES.items())))
     rep.out("  - '100 puntos criticos' (placa final R07 y bloque 5): cifra pendiente de verificar; no tocada.")
     rep.out("  - Transcripcion: el script no escucha el audio. Comprobar a oido los 6 bloques.")
@@ -1273,6 +1440,7 @@ def parse_args(argv):
     p.add_argument("--sin-render", action="store_true")
     p.add_argument("--forzar-render", action="store_true")
     p.add_argument("--borrar-v2-v3", action="store_true")
+    p.add_argument("--revertir-fechas", action="store_true")
     try:
         a, _ = p.parse_known_args(argv)
     except SystemExit:
@@ -1282,6 +1450,7 @@ def parse_args(argv):
     o.render = RENDER and not a.sin_render and not o.solo_medir
     o.forzar_render = FORZAR_RENDER or a.forzar_render
     o.borrar_v2_v3 = BORRAR_V2_V3 or a.borrar_v2_v3
+    o.revertir_fechas = a.revertir_fechas
     return o
 
 
@@ -1296,14 +1465,16 @@ def run(opts, rep):
     v1 = step2_v1(before, rep)
     subs = step3_subs(tl, v1, opts, rep)
     if opts.solo_medir:
-        summary(rep, v1, subs, fonts)
+        fechas = step4b_fechas(tl, fonts, opts, rep)
+        summary(rep, v1, subs, fonts, fechas)
         rep.out("")
         rep.out("SOLO MEDICION: no se modifico nada.")
         return
     step4_style(tl, subs, fonts, rep)
+    fechas = step4b_fechas(tl, fonts, opts, rep)
     step5_integrity(tl, before, subs, rep)
     step6_save(pm, rep)
-    summary(rep, v1, subs, fonts)
+    summary(rep, v1, subs, fonts, fechas)
     rep.save()
     if not opts.render:
         rep.out("")
