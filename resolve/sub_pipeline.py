@@ -10,6 +10,8 @@ Pasos (en orden; se detiene si falta una fuente o si V4/V5 no son pistas de titu
   1. Fuentes: Montserrat Thin y Montserrat Black Italic visibles para Fusion.
   2. Mide los cortes reales de V1 (GetItemListInTrack), los exporta a
      resolve\v1_cortes_medidos.json y los compara con resolve\bloques_sub.json.
+     Cada clip y cada rotulo de V3 lleva su fecha de publicacion en formato de
+     casa (27-nov-2024); las fechas solo se reportan, no se cambian.
   3. Verifica los 11 Text+ de V4/V5: StyledText = nombre del clip = texto esperado,
      in/out = bloque (recortado al clip de V1 si hiciera falta), sin cruzar cortes.
      Corrige el texto si difiere.
@@ -72,6 +74,10 @@ BORRAR_V2_V3 = False
 FPS = 30
 TL_WIDTH, TL_HEIGHT, TL_FRAMES = 1080, 1920, 1192
 V1_EXPECTED = ("H00", "H01", "H02", "H03", "H04", "H05", "H06", "R07")
+# Fechas de publicacion en YouTube (= rotulos de V3). Solo se reportan; no se cambian.
+PUB_DATES = {"H01": "2024-11-27", "H02": "2025-07-14", "H03": "2025-08-01",
+             "H04": "2025-08-25", "H05": "2025-07-14"}
+MESES = ("ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic")
 
 SUB_ARRIBA, SUB_ABAJO = "SUB_ARRIBA", "SUB_ABAJO"
 ROLES = (SUB_ARRIBA, SUB_ABAJO)
@@ -131,7 +137,7 @@ class Abort(Exception):
 class Report(object):
     def __init__(self):
         self.lines, self.blockers, self.warnings, self.notes = [], [], [], []
-        self.data = {"inicio": datetime.datetime.now().isoformat(timespec="seconds")}
+        self.data = {"inicio": ahora_casa()}
 
     def out(self, s=""):
         self.lines.append(s)
@@ -184,6 +190,31 @@ def tc(frames):
     m, s = divmod(s, 60)
     h, m = divmod(m, 60)
     return "%02d:%02d:%02d:%02d" % (h, m, s, fr)
+
+
+def fecha_casa(iso):
+    """'2024-11-27' -> '27-nov-2024' (formato de casa)."""
+    m = re.match(r"(\d{4})-(\d{2})-(\d{2})", str(iso or ""))
+    if not m:
+        return None
+    y, mo, d = m.groups()
+    return "%s-%s-%s" % (d, MESES[int(mo) - 1], y)
+
+
+def ahora_casa():
+    n = datetime.datetime.now()
+    return "%s %s" % (fecha_casa(n.strftime("%Y-%m-%d")), n.strftime("%H:%M"))
+
+
+def clip_date(name):
+    """Fecha de publicacion que lleva el nombre del clip, en formato de casa ('hoy' si es HOY)."""
+    n = norm(name)
+    m = re.search(r"\d{4}-\d{2}-\d{2}", n)
+    if m:
+        return fecha_casa(m.group(0))
+    if re.search(r"(^|_)hoy(_|\.|$)", n, re.I):
+        return "hoy"
+    return None
 
 
 def call(obj, name, *args):
@@ -562,12 +593,34 @@ def step2_v1(snap, rep):
     if "V1" not in snap:
         raise Abort("La timeline no tiene V1")
     v1 = snap["V1"]["items"]
-    rep.out("   # clip                                  in    out   dur  TC in        TC out")
+    rep.out("   # clip                                  fecha          in    out   dur  TC in        TC out")
     for i, c in enumerate(v1, 1):
-        rep.out("  %2d %-36s %5d  %5d  %4d  %s  %s"
-                % (i, c["name"], c["start"], c["end"], c["dur"], tc(c["start"]), tc(c["end"])))
+        c["fecha"] = clip_date(c["name"])
+        rep.out("  %2d %-36s  %-11s  %5d  %5d  %4d  %s  %s" % (
+            i, c["name"], c["fecha"] or "-", c["start"], c["end"], c["dur"], tc(c["start"]), tc(c["end"])))
     rep.out("  Cortes (frame donde empieza cada clip): %s"
             % ", ".join(str(c["start"]) for c in v1[1:]))
+    for pfx, iso in sorted(PUB_DATES.items()):
+        for c in (c for c in v1 if prefix(c["name"]) == pfx):
+            if c["fecha"] != fecha_casa(iso):
+                rep.warn("%s: el nombre dice %s y la publicacion en YouTube es %s (no se cambia nada)"
+                         % (c["name"], c["fecha"], fecha_casa(iso)))
+
+    # Rotulos de V3 (fechas rojas): solo se listan con el clip de V1 que tienen debajo.
+    v3 = []
+    for r in snap.get("V3", {}).get("items", []):
+        under = max(v1, key=lambda c: min(r["end"], c["end"]) - max(r["start"], c["start"])) if v1 else None
+        row = {"name": r["name"], "start": r["start"], "end": r["end"],
+               "clip": under["name"] if under else None, "fecha": under.get("fecha") if under else None}
+        v3.append(row)
+        m = re.match(r"R0?(\d+)", norm(r["name"]), re.I)
+        if m and under and prefix(under["name"]) != "H%02d" % int(m.group(1)):
+            rep.warn("Rotulo %s esta sobre %s, no sobre H%02d" % (r["name"], under["name"], int(m.group(1))))
+    if v3:
+        rep.out("  Rotulos V3: %s" % "; ".join(
+            "%s %d-%d sobre %s (%s)" % (r["name"], r["start"], r["end"], prefix(r["clip"]), r["fecha"] or "-")
+            for r in v3))
+    rep.data["v3"] = v3
     got = tuple(prefix(c["name"]) for c in v1)
     if got != V1_EXPECTED:
         rep.warn("V1 tiene %d clips %s; esperado %s" % (len(v1), list(got), list(V1_EXPECTED)))
@@ -578,7 +631,8 @@ def step2_v1(snap, rep):
                 "hueco" if b["start"] > a["end"] else "solape"))
     try:
         with open(CORTES_JSON, "w", encoding="utf-8") as f:
-            json.dump({"timeline": TIMELINE_NAME, "fps": FPS, "v1": v1}, f, ensure_ascii=False, indent=2)
+            json.dump({"timeline": TIMELINE_NAME, "fps": FPS, "medido": ahora_casa(), "v1": v1,
+                       "v3_rotulos": v3}, f, ensure_ascii=False, indent=2)
         rep.out("  Exportado: %s" % CORTES_JSON)
     except Exception as e:
         rep.warn("No pude escribir %s: %s" % (CORTES_JSON, e))
@@ -1042,18 +1096,28 @@ def summary(rep, v1, subs, fonts):
     rep.h("REPORTE")
     rep.out("Cortes de V1 medidos (frames de timeline @ %d fps, tcStart 00:00:00:00):" % FPS)
     for i, c in enumerate(v1, 1):
-        rep.out("  %d. %-36s %4d-%4d  %s-%s  %5.2f s"
-                % (i, c["name"], c["start"], c["end"], tc(c["start"]), tc(c["end"]), c["dur"] / float(FPS)))
+        rep.out("  %d. %-36s %-11s %4d-%4d  %s-%s  %5.2f s" % (
+            i, c["name"], c.get("fecha") or "-", c["start"], c["end"], tc(c["start"]), tc(c["end"]),
+            c["dur"] / float(FPS)))
     rep.out("  Cortes: %s" % ", ".join(str(c["start"]) for c in v1[1:]))
+    v3 = rep.data.get("v3") or []
+    if v3:
+        rep.out("Rotulos V3 (sin cambios):")
+        for r in v3:
+            rep.out("  %-20s %4d-%4d  sobre %-4s %s" % (r["name"], r["start"], r["end"],
+                                                    prefix(r["clip"]), r["fecha"] or "-"))
     rep.out("")
+    fechas = dict((prefix(c["name"]), c.get("fecha")) for c in v1)
     entries = sorted(subs["entries"], key=lambda x: (x["s"], x["role"] != SUB_ARRIBA))
     rep.out("Text+ (%d):" % sum(1 for x in entries if "item" in x))
-    rep.out("  blq pista       in    out   TC in        dur    texto                        Font / Style (leido)")
+    rep.out("  blq pista       clip fecha          in    out   TC in        dur    texto"
+            "                        Font / Style (leido)")
     table = []
     for x in entries:
         rb = x.get("readback", {})
         st, en = x.get("start"), x.get("end")
-        row = {"bloque": x["block"], "pista": x["role"], "V": x["track"], "in": st, "out": en,
+        row = {"bloque": x["block"], "pista": x["role"], "V": x["track"], "clip": x["clip"],
+               "fecha": fechas.get(x["clip"]), "in": st, "out": en,
                "texto": norm(x.get("styled") or x["text"]), "font": rb.get("Font"), "style": rb.get("Style"),
                "size": rb.get("Size"), "center": rb.get("Center"), "inputs": rb.get("inputs_fijados"),
                "otros": rb.get("otros")}
@@ -1061,9 +1125,9 @@ def summary(rep, v1, subs, fonts):
         if st is None:
             rep.out("  B%d  %-10s  FALTA  (%d-%d) '%s'" % (x["block"], x["role"], x["s2"], x["e2"], x["text"]))
             continue
-        rep.out("  B%d  %-10s %4d  %4d   %s  %4.2f s  %-28s %s / %s" % (
-            x["block"], x["role"], st, en, tc(st), (en - st) / float(FPS), "'%s'" % row["texto"],
-            rb.get("Font", "(sin estilar)"), rb.get("Style", "")))
+        rep.out("  B%d  %-10s %-4s %-11s %4d  %4d   %s  %4.2f s  %-28s %s / %s" % (
+            x["block"], x["role"], x["clip"], row["fecha"] or "-", st, en, tc(st), (en - st) / float(FPS),
+            "'%s'" % row["texto"], rb.get("Font", "(sin estilar)"), rb.get("Style", "")))
     rep.data["textplus"] = table
     rep.out("")
     for role in ROLES:
@@ -1072,6 +1136,8 @@ def summary(rep, v1, subs, fonts):
             rep.out("Fuente %s: Font=%r Style=%r archivo=%s" % (role, f[0], f[1], f[2]))
     rep.out("")
     rep.out("Pendiente / dudas:")
+    rep.out("  - Fechas de los rotulos = publicacion en YouTube: %s. No se cambian." % ", ".join(
+        "%s %s" % (p, fecha_casa(d)) for p, d in sorted(PUB_DATES.items())))
     rep.out("  - '100 puntos criticos' (placa final R07 y bloque 5): cifra pendiente de verificar; no tocada.")
     rep.out("  - Transcripcion: el script no escucha el audio. Comprobar a oido los 6 bloques.")
     for n in rep.notes:
@@ -1256,6 +1322,7 @@ def run(opts, rep):
 def main(argv=None):
     opts = parse_args(argv if argv is not None else getattr(sys, "argv", [""])[1:])
     rep = Report()
+    rep.out("Reporte sub_pipeline - %s" % ahora_casa())
     try:
         run(opts, rep)
     except Abort as e:
@@ -1266,7 +1333,7 @@ def main(argv=None):
         rep.h("ERROR")
         rep.out(traceback.format_exc())
         rep.data["error"] = traceback.format_exc()
-    rep.data["fin"] = datetime.datetime.now().isoformat(timespec="seconds")
+    rep.data["fin"] = ahora_casa()
     rep.out("")
     rep.out("Reporte: %s.txt / .json" % REPORT_BASE)
     rep.save()
