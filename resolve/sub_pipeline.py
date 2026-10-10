@@ -18,10 +18,10 @@ Pasos (en orden; se detiene si falta una fuente o si V4/V5 no son pistas de titu
   4. Renombra V4 -> SUB_ARRIBA y V5 -> SUB_ABAJO (si ya existen, solo re-aplica) y
      aplica el estilo a cada Text+. Si un clip no es un TextPlus real, lo convierte
      in situ (Fusion comp con TextPlus en la misma posicion; no se mueve nada).
-  4b. Fechas: los rotulos R01-R04 y R06_hoy de V3 pasan a Text+ editables con la
-     fecha en formato de casa (27-nov-2024, "hoy") y el estilo de SUB_ABAJO, colocados
-     donde estaba el texto del PNG. Se hace en el mismo clip (comp Fusion
-     "FECHA_casa"): no se mueve nada. R00_intro sigue en PNG.
+  4b. Fechas: los rotulos de V3 (R00_intro, R01-R04, R06_hoy) pasan a Text+
+     editables con la fecha en formato de casa (27-nov-2024, "hoy") y el estilo de
+     SUB_ABAJO, colocados donde estaba el texto del PNG. Se hace en el mismo clip
+     (comp Fusion "FECHA_casa"): no se mueve nada.
   5. Comprueba que V1, V2, V3 y todo el audio quedaron identicos y borra la pista
      de subtitulos "Subtitle 1" si existe.
   6. Guarda el proyecto y escribe resolve\sub_report.txt y resolve\sub_report.json.
@@ -124,12 +124,11 @@ OUTLINE = {"thickness": 0.15, "softness": 12.0, "opacity": 1.0, "offset": (0.0, 
 # Cada rotulo PNG de V3 recibe en su sitio una comp Fusion "FECHA_casa" con un
 # TextPlus -> MediaOut: misma pista, mismo in/out, nada se mueve; el PNG queda
 # debajo sin usarse (--revertir-fechas borra la comp y vuelve el PNG).
-# Rotulos sin fecha de publicacion: se convierten solo los de FECHA_TEXTO_EXTRA
-# (R06_hoy -> "hoy"); R00_intro no es una fecha y sigue en PNG.
+# Rotulos sin fecha de publicacion (clips HOY): texto fijo en FECHA_TEXTO_EXTRA.
 FECHAS_TEXTPLUS = True
 ROTULOS_IDX = 3
 FECHA_ROTULOS = {"R01": "H01", "R02": "H02", "R03": "H03", "R04": "H04"}
-FECHA_TEXTO_EXTRA = {"R06": "hoy"}
+FECHA_TEXTO_EXTRA = {"R00": "hoy", "R06": "hoy"}
 FECHA_ESTILO = SUB_ABAJO          # fuente del Text+ de fecha (Montserrat Black Italic)
 FECHA_SIZE = LAYOUT[SUB_ABAJO][0]
 FECHA_CENTER_DEFAULT = (0.5, 0.78)  # solo si no se puede medir la zona opaca del PNG
@@ -1302,7 +1301,7 @@ def summary(rep, v1, subs, fonts, fechas=()):
             rep.out("Fuente %s: Font=%r Style=%r archivo=%s" % (role, f[0], f[1], f[2]))
     rep.out("")
     rep.out("Pendiente / dudas:")
-    rep.out("  - Fechas de los rotulos = publicacion en YouTube: %s; R06 'hoy'. Mismas fechas, "
+    rep.out("  - Fechas de los rotulos = publicacion en YouTube: %s; R00 y R06 'hoy'. Mismas fechas, "
             "ahora como Text+ (%s)." % (", ".join(
                 "%s %s" % (p, fecha_casa(d)) for p, d in sorted(PUB_DATES.items())),
                 ", ".join(sorted(set(FECHA_ROTULOS) | set(FECHA_TEXTO_EXTRA)))))
